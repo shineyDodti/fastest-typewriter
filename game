@@ -1,0 +1,95 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
+
+public class TyperacerGame extends JFrame {
+    private JLabel sentenceLabel;
+    private JTextField userInputField;
+    private JButton startButton;
+    private Timer timer;
+    private String currentSentence;
+    private int currentIndex;
+
+    public TyperacerGame() {
+        setTitle("Typeracer Game");
+        setSize(400, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        sentenceLabel = new JLabel();
+        userInputField = new JTextField(20);
+        startButton = new JButton("Start");
+        startButton.addActionListener(new StartButtonListener());
+
+        JPanel topPanel = new JPanel();
+        topPanel.add(sentenceLabel);
+        add(topPanel, BorderLayout.NORTH);
+
+        JPanel centerPanel = new JPanel();
+        centerPanel.add(userInputField);
+        add(centerPanel, BorderLayout.CENTER);
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(startButton);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        timer = new Timer(1000, new TimerListener());
+
+        generateRandomSentence();
+    }
+
+    private void generateRandomSentence() {
+        String[] sentences = {
+            "The quick brown fox jumps over the lazy dog.",
+            "Programming is fun and challenging.",
+            "Swing is a Java GUI toolkit."
+        };
+
+        Random rand = new Random();
+        currentSentence = sentences[rand.nextInt(sentences.length)];
+        sentenceLabel.setText(currentSentence);
+    }
+
+    private class StartButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            startButton.setEnabled(false);
+            currentIndex = 0;
+            userInputField.setText("");
+            userInputField.setEnabled(true);
+            userInputField.requestFocus();
+            timer.start();
+        }
+    }
+
+    private class TimerListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (currentIndex < currentSentence.length()) {
+                char expectedChar = currentSentence.charAt(currentIndex);
+                char userChar = userInputField.getText().charAt(0);
+
+                if (expectedChar == userChar) {
+                    currentIndex++;
+                    userInputField.setText("");
+                }
+            } else {
+                // Typing is complete
+                timer.stop();
+                userInputField.setEnabled(false);
+                startButton.setEnabled(true);
+                JOptionPane.showMessageDialog(null, "Typing complete!");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            TyperacerGame game = new TyperacerGame();
+            game.setVisible(true);
+        });
+    }
+}
